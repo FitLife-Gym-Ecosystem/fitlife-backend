@@ -31,4 +31,7 @@ public class Member {
 
     @Column(name = "status", nullable = false, length = 20)
     private String status = "ACTIVE";
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
 }

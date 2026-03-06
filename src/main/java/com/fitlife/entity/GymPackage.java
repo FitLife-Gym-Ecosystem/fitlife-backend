@@ -30,4 +30,7 @@ public class GymPackage {
 
     @Column(name = "status", nullable = false, length = 20)
     private String status = "ACTIVE"; // "ACTIVE" hoặc "INACTIVE"
+
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
 }
