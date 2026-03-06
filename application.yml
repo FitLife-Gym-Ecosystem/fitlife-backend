@@ -15,9 +15,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
+      ddl-auto: validate # 1. TƯỚC QUYỀN HIBERNATE (Chỉ cho phép kiểm tra, KHÔNG tạo bảng)
+
+    flyway:
+      enabled: true              # 2. BẬT FLYWAY
+      baseline-on-migrate: true  # 3. CHẤP NHẬN BASELINE
