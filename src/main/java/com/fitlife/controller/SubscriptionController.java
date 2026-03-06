@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,10 +17,13 @@ import org.springframework.web.bind.annotation.*;
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
+    private final MemberController memberController;
+    private final UserController userController;
 
     @PostMapping
     // 1. Dùng @Valid để kích hoạt Input Validation
     // 2. Dùng ApiResponse để chuẩn hóa cấu trúc JSON trả về
+    @Transactional(rollbackFor = Exception.class) // Đảm bảo rollback nếu có lỗi xảy ra trong quá trình tạo subscription
     public ResponseEntity<ApiResponse<SubscriptionResponse>> createSubscription(
             @Valid @RequestBody SubscriptionCreationRequest request) {
 
