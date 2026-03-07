@@ -15,4 +15,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     // Tìm gói tập ACTIVE mới nhất của Member này
     Optional<Subscription> findFirstByMemberAndStatus(Member member, String status);
+
+    Optional<Subscription> findFirstByMemberAndStatusOrderByEndDateDesc(Member member, String status);
 }

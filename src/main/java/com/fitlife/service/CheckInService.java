@@ -10,6 +10,7 @@ import com.fitlife.repository.MemberRepository;
 import com.fitlife.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // THÊM IMPORT NÀY
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,12 +24,13 @@ public class CheckInService {
     private final SubscriptionRepository subscriptionRepository;
     private final CheckInHistoryRepository checkInHistoryRepository;
 
+    @Transactional // THÊM DÒNG NÀY: Đảm bảo an toàn dữ liệu
     public CheckInResponse processCheckIn(CheckInRequest request) {
         // 1. Tìm ai đang quẹt thẻ
         Member member = memberRepository.findById(request.getMemberId())
                 .orElseThrow(() -> new RuntimeException("Member not found. Fake ID card!"));
 
-        LocalDateTime now = LocalDateTime.now(); // Lấy mốc thời gian quẹt thẻ chính xác đến từng giây
+        LocalDateTime now = LocalDateTime.now();
         LocalDate today = LocalDate.now();
 
         // 2. Mặc định là Cấm Cửa
