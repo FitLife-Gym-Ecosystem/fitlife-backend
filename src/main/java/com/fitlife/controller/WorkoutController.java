@@ -29,8 +29,7 @@ public class WorkoutController {
     @PatchMapping("/detail/{detailId}/complete")
     public ResponseEntity<ApiResponse<String>> completeWorkoutDetail(@PathVariable Long detailId) {
 
-        // TODO: Gọi Service để cập nhật cột is_completed = true trong Database
-        // workoutService.completeWorkoutDetail(detailId);
+        workoutService.completeWorkoutDetail(detailId);
 
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
