@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -14,9 +15,12 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(
                 title = "FitLife Gym REST API",
                 version = "1.0",
-                description = "Tài liệu API cho hệ thống quản lý phòng Gym FitLife. Tích hợp JWT Security.",
+                description = "Tài liệu API cho hệ thống quản lý phòng Gym FitLife. Tích hợp JWT Security, Gemini AI và VNPay.",
                 contact = @Contact(name = "Huy Developer", email = "huy@example.com")
         ),
+        servers = {
+                @Server(description = "Local Environment", url = "http://localhost:8080/api/v1")
+        },
         // Apply security to the entire API
         security = @SecurityRequirement(name = "bearerAuth")
 )
@@ -29,5 +33,5 @@ import org.springframework.context.annotation.Configuration;
         in = SecuritySchemeIn.HEADER
 )
 public class OpenApiConfig {
-    // This file only contains Annotation to configure the UI, no logical code is needed
+        // This file only contains Annotation to configure the UI, no logical code is needed
 }
