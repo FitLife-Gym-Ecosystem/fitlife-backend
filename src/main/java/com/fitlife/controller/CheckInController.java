@@ -13,7 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/checkin") // Đã thêm /api/v1 cho chuẩn cấu trúc
+@RequestMapping("/checkin")
 @RequiredArgsConstructor
 public class CheckInController {
 
@@ -21,32 +21,39 @@ public class CheckInController {
     private final UserRepository userRepository;
 
     /**
-     * 1. Luồng Staff/Admin: Lễ tân quét thẻ/mã của khách hàng
+     * 1. Staff/Admin: Staff scan card/qr of member
      */
     @PostMapping("/{memberId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF', 'ADMIN', 'STAFF')")
     public ResponseEntity<ApiResponse<CheckInResponse>> staffProcessCheckIn(
             @PathVariable Long memberId,
             Authentication authentication) {
 
-        // authentication.getName() sẽ lấy ra username của Staff đang thực hiện
-        CheckInResponse result = checkInService.processCheckIn(memberId, authentication.getName());
+        // Get information about the Staff performing the operation
+        User staffUser = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Tài khoản nhân viên không hợp lệ"));
+
+        // ANTI-FRAUD LOGIC: Staff/Admins are not allowed to check-in for themselves
+        if (staffUser.getMember() != null && staffUser.getMember().getId().equals(memberId)) {
+            throw new RuntimeException("LỖI GIAN LẬN: Nhân viên hoặc Quản lý không thể tự check-in cho chính mình tại quầy!");
+        }
+
+        CheckInResponse result = checkInService.processCheckIn(memberId, staffUser.getUsername());
 
         return ResponseEntity.ok(ApiResponse.<CheckInResponse>builder()
                 .code(HttpStatus.OK.value())
-                .message("Check-in processed by staff")
+                .message("Check-in xử lý thành công bởi nhân viên")
                 .data(result)
                 .build());
     }
 
     /**
-     * 2. Luồng Self-Service: Member tự mở App quét mã tại cửa
+     * 2. Stream Self-Service: Members automatically open the App to scan the code at the door
      */
     @PostMapping("/me")
-    @PreAuthorize("hasRole('MEMBER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_MEMBER', 'MEMBER')")
     public ResponseEntity<ApiResponse<CheckInResponse>> memberSelfCheckIn(Authentication authentication) {
 
-        // Tìm user đang đăng nhập dựa vào Token
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Tài khoản không hợp lệ"));
 
@@ -54,12 +61,11 @@ public class CheckInController {
             throw new RuntimeException("Tài khoản này chưa có hồ sơ hội viên!");
         }
 
-        // Truyền ID của chính Member đó xuống Service
-        CheckInResponse result = checkInService.processCheckIn(user.getMember().getId(), authentication.getName());
+        CheckInResponse result = checkInService.processCheckIn(user.getMember().getId(), user.getUsername());
 
         return ResponseEntity.ok(ApiResponse.<CheckInResponse>builder()
                 .code(HttpStatus.OK.value())
-                .message("Self check-in processed")
+                .message("Hội viên tự check-in thành công")
                 .data(result)
                 .build());
     }

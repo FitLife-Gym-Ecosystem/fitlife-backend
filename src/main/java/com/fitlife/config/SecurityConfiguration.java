@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity; // <-- Thêm Import này
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
@@ -50,6 +52,8 @@ public class SecurityConfiguration {
 
                         // 3. ADMINISTRATION
                         .requestMatchers(HttpMethod.POST, "/packages/**", "/api/v1/packages/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ADMIN", "STAFF")
+
+                        // CHECK-IN ROUTE
                         .requestMatchers("/checkin/**", "/api/v1/checkin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MEMBER", "ADMIN", "STAFF", "MEMBER")
 
                         .anyRequest().authenticated()
