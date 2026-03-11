@@ -30,4 +30,7 @@ public interface CheckInHistoryRepository extends JpaRepository<CheckInHistory, 
             @Param("memberId") Long memberId,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT COUNT(c) FROM CheckInHistory c WHERE c.checkInTime >= CURRENT_DATE AND c.status = 'ACCESS_GRANTED'")
+    long countCheckinsToday();
 }

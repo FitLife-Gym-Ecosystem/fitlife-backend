@@ -24,5 +24,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT m FROM Member m LEFT JOIN FETCH m.user WHERE LOWER(m.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Member> findByFullNameContainingIgnoreCase(@Param("keyword") String keyword, Pageable pageable);
 
+    long countByStatus(String status);
+
 }
 
