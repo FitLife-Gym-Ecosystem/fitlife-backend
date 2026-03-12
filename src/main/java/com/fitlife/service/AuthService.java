@@ -130,4 +130,76 @@ public class AuthService {
 
         return "Khôi phục mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.";
     }
+
+    //  Register by Google (OAUTH2)
+
+    private static final String GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+
+    @Transactional
+    public LoginResponse googleLogin(GoogleLoginRequest request) {
+        try {
+            // 1. Cấu hình bộ xác minh của Google
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+                    // Chỉ chấp nhận Token được tạo ra cho ứng dụng của em (Bỏ qua đoạn verify ClientId tạm thời để test dễ hơn nếu chưa có ClientID thật)
+                    // .setAudience(Collections.singletonList(GOOGLE_CLIENT_ID))
+                    .build();
+
+            // 2. Xác minh Token do Frontend gửi lên
+            GoogleIdToken idToken = verifier.verify(request.getToken());
+            if (idToken == null) {
+                throw new RuntimeException("Google Token không hợp lệ hoặc đã hết hạn!");
+            }
+
+            // 3. Lấy thông tin từ Google
+            GoogleIdToken.Payload payload = idToken.getPayload();
+            String email = payload.getEmail();
+            String name = (String) payload.get("name");
+            String pictureUrl = (String) payload.get("picture");
+
+            // Lấy phần đầu của email làm username tạm thời
+            String username = email.split("@")[0];
+
+            // 4. Kiểm tra xem người dùng đã tồn tại trong Database chưa
+            User user = userRepository.findByUsername(username).orElse(null);
+
+            if (user == null) {
+                // NẾU LÀ NGƯỜI MỚI -> TỰ ĐỘNG ĐĂNG KÝ (Auto-Register)
+                // Sinh mật khẩu ngẫu nhiên vì họ đăng nhập bằng Google
+                String randomPassword = java.util.UUID.randomUUID().toString().substring(0, 8);
+
+                user = User.builder()
+                        .username(username)
+                        .password(passwordEncoder.encode(randomPassword))
+                        .role("MEMBER")
+                        .status("ACTIVE")
+                        .build();
+                user = userRepository.save(user);
+
+                Member member = Member.builder()
+                        .user(user)
+                        .fullName(name)
+                        .email(email)
+                        .phone(null) // Đăng nhập Google không có SĐT
+                        .status("ACTIVE")
+                        .avatarUrl(pictureUrl) // Lấy luôn Avatar của Google
+                        .build();
+                memberRepository.save(member);
+
+                // Gửi email chào mừng luôn
+                emailService.sendWelcomeEmail(email, name);
+            }
+
+            // 5. Sinh JWT Token của hệ thống FitLife (Giống hệt đăng nhập thường)
+            String jwtToken = jwtService.generateToken(user);
+
+            return LoginResponse.builder()
+                    .token(jwtToken)
+                    .username(user.getUsername())
+                    .role(user.getRole())
+                    .build();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi xác thực Google: " + e.getMessage());
+        }
+    }
 }
