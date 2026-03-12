@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.fitlife.dto.GoogleLoginRequest;
 
 @RestController
 @RequestMapping("/auth")
@@ -63,6 +64,19 @@ public class AuthController {
                 .code(200)
                 .message("Thành công")
                 .data(result)
+                .build());
+    }
+
+
+    @PostMapping("/google")
+    public ResponseEntity<ApiResponse<LoginResponse>> googleLogin(@Valid @RequestBody GoogleLoginRequest request) {
+        LoginResponse response = authService.googleLogin(request.getToken());
+
+        // Đổi từ ApiResponse.success(...) sang dùng Builder
+        return ResponseEntity.ok(ApiResponse.<LoginResponse>builder()
+                .code(200)
+                .message("Đăng nhập bằng Google thành công")
+                .data(response)
                 .build());
     }
 }

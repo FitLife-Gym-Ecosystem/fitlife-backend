@@ -47,3 +47,6 @@ vnpay:
   hash-secret: ${VNPAY_HASH_SECRET}
   pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
   return-url: http://localhost:8080/api/v1/payment/vnpay-return
+
+google:
+  client-id: ${GOOGLE_CLIENT_ID}
