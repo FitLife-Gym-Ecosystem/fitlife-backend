@@ -21,10 +21,10 @@ public class SubscriptionService {
     private final GymPackageRepository gymPackageRepository;
 
     @Transactional
-    public SubscriptionResponse createSubscription(SubscriptionCreationRequest request) {
+    public SubscriptionResponse createSubscription(String username, SubscriptionCreationRequest request) {
 
-        // 1. Tìm Member và Package
-        Member member = memberRepository.findById(request.getMemberId())
+        // 1. TÌM MEMBER BẰNG USERNAME TỪ TOKEN (Bảo mật 100%)
+        Member member = memberRepository.findByUserUsername(username)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hội viên"));
 
         GymPackage gymPackage = gymPackageRepository.findById(request.getPackageId())
@@ -36,20 +36,15 @@ public class SubscriptionService {
             throw new RuntimeException("Hội viên này đang có một gói tập đang hoạt động (ACTIVE).");
         }
 
-        // 3. Map DTO -> Entity (Chỉ tạo Đăng ký ở trạng thái PENDING)
-        // CHÚ Ý: Không set startDate và endDate lúc này
+        // 3. Map DTO -> Entity (Trạng thái PENDING chờ VNPay)
         Subscription newSubscription = Subscription.builder()
                 .member(member)
                 .gymPackage(gymPackage)
-                .status("PENDING") // CHUẨN NGHIỆP VỤ LÀ ĐÂY!
+                .status("PENDING")
                 .build();
 
-        // 4. Lưu Database
         Subscription savedSub = subscriptionRepository.save(newSubscription);
 
-        // Chú ý: Ta ĐÃ XÓA logic tạo Payment ở đây. Việc tạo Payment là nhiệm vụ của PaymentService.
-
-        // 5. Map Entity -> Response DTO
         return SubscriptionResponse.builder()
                 .id(savedSub.getId())
                 .memberId(member.getId())

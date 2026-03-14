@@ -17,7 +17,7 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping("/create")
+    @PostMapping("/create-payment")
     @PreAuthorize("hasAnyAuthority('MEMBER', 'ROLE_MEMBER')")
     public ResponseEntity<ApiResponse<PaymentResponse>> createPayment(
             @RequestParam("subscriptionId") Long subscriptionId,
