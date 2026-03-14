@@ -25,7 +25,7 @@ public class AdminStatisticsController {
     private final PaymentRepository paymentRepository;
     private final CheckInHistoryRepository checkInHistoryRepository;
 
-    @GetMapping("/dashboard")
+    @GetMapping("/admin/dashboard")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<AdminDashboardResponse>> getDashboardData() {
 

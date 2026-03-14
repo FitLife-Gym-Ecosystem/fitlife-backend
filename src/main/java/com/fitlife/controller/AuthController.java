@@ -67,12 +67,10 @@ public class AuthController {
                 .build());
     }
 
-
     @PostMapping("/google")
     public ResponseEntity<ApiResponse<LoginResponse>> googleLogin(@Valid @RequestBody GoogleLoginRequest request) {
         LoginResponse response = authService.googleLogin(request.getToken());
 
-        // Đổi từ ApiResponse.success(...) sang dùng Builder
         return ResponseEntity.ok(ApiResponse.<LoginResponse>builder()
                 .code(200)
                 .message("Đăng nhập bằng Google thành công")

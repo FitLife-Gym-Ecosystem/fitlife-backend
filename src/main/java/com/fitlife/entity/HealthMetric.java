@@ -22,13 +22,11 @@ public class HealthMetric {
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
-    private Member member; //
+    private Member member;
 
-    private double weight;
-    private double height;
-    private double bmi;
-
-
+    private Double weight;
+    private Double height;
+    private Double bmi;
 
     @Column(name = "recorded_at")
     private LocalDateTime recordedAt;
