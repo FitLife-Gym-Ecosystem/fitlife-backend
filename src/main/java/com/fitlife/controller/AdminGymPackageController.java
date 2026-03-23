@@ -1,7 +1,7 @@
 package com.fitlife.controller;
 
 import com.fitlife.dto.ApiResponse;
-import com.fitlife.dto.GymPackageCreationRequest;
+import com.fitlife.dto.GymPackageRequest;
 import com.fitlife.dto.GymPackageResponse;
 import com.fitlife.dto.PageResponse;
 import com.fitlife.service.GymPackageService;
@@ -53,7 +53,7 @@ public class AdminGymPackageController {
 
     // Tạo gói tập mới
     @PostMapping
-    public ResponseEntity<ApiResponse<GymPackageResponse>> createPackage(@Valid @RequestBody GymPackageCreationRequest request) {
+    public ResponseEntity<ApiResponse<GymPackageResponse>> createPackage(@Valid @RequestBody GymPackageRequest request) {
         GymPackageResponse result = packageService.createPackage(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.<GymPackageResponse>builder()
@@ -67,7 +67,7 @@ public class AdminGymPackageController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<GymPackageResponse>> updatePackage(
             @PathVariable Long id,
-            @Valid @RequestBody GymPackageCreationRequest request) {
+            @Valid @RequestBody GymPackageRequest request) {
         GymPackageResponse result = packageService.updatePackage(id, request);
 
         return ResponseEntity.ok(ApiResponse.<GymPackageResponse>builder()
