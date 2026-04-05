@@ -1,5 +1,6 @@
 package com.fitlife.attendance;
 
+import com.fitlife.attendance.dto.CheckInResponse;
 import com.fitlife.attendance.entity.CheckInHistory;
 import com.fitlife.member.entity.Member;
 import com.fitlife.subscription.Subscription;

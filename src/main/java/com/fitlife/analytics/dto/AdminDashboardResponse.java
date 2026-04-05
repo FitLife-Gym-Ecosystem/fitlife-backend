@@ -1,4 +1,4 @@
-package com.fitlife.analytics;
+package com.fitlife.analytics.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,4 +17,5 @@ public class AdminDashboardResponse {
     private double totalRevenue;
     private long totalCheckinsToday;
     private Map<String, Double> revenueByMonth;
+    // Tương lai sẽ nhúng thêm RevenueReportResponse và PeakHourTrafficResponse vào đây
 }

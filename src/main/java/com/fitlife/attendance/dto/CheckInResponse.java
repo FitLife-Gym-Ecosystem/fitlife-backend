@@ -1,4 +1,4 @@
-package com.fitlife.attendance;
+package com.fitlife.attendance.dto;
 
 import lombok.Builder;
 import lombok.Getter;
