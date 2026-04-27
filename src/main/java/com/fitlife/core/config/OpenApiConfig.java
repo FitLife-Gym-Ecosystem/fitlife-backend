@@ -13,20 +13,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
         info = @Info(
-                title = "FitLife Gym REST API",
+                title = "FitLife Gym & Health Management API",
                 version = "1.0",
-                description = "Tài liệu API cho hệ thống quản lý phòng Gym FitLife. Tích hợp JWT Security, Gemini AI và VNPay.",
-                contact = @Contact(name = "Huy Developer", email = "huy@example.com")
+                description = "Tài liệu REST API cho hệ thống quản lý phòng Gym FitLife. Bao gồm xác thực JWT, hội viên, gói tập, thanh toán VNPay, check-in, AI workout và báo cáo sức khỏe.",
+                contact = @Contact(name = "FitLife Team", email = "support@fitlife.local")
         ),
         servers = {
-                @Server(description = "Local Environment", url = "http://localhost:8080/api/v1")
+                @Server(description = "Local Environment", url = "http://localhost:8080"),
+                @Server(description = "API Prefix", url = "http://localhost:8080/api/v1")
         },
         // Apply security to the entire API
         security = @SecurityRequirement(name = "bearerAuth")
 )
 @SecurityScheme(
         name = "bearerAuth",
-        description = "Nhập JWT Token của bạn vào đây (Không cần thêm chữ Bearer, hệ thống tự lo)",
+        description = "Nhập JWT Token vào đây. Swagger UI sẽ tự thêm tiền tố Bearer khi gọi API.",
         scheme = "bearer",
         type = SecuritySchemeType.HTTP,
         bearerFormat = "JWT",

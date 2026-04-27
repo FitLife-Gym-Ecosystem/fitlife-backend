@@ -4,6 +4,10 @@ import com.fitlife.core.response.ApiResponse;
 import com.fitlife.payment.dto.PaymentResponse;
 import com.fitlife.payment.mapper.PaymentMapper;
 import com.fitlife.payment.service.PaymentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/payment")
 @RequiredArgsConstructor
+@Tag(name = "Payment Management", description = "Tạo link thanh toán và xử lý callback VNPay")
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -20,7 +25,9 @@ public class PaymentController {
 
     @PostMapping("/create-payment")
     @PreAuthorize("hasAnyAuthority('MEMBER', 'ROLE_MEMBER')")
+    @Operation(summary = "Tạo link thanh toán VNPay", description = "Sinh URL thanh toán cho subscription đã tạo của hội viên.")
     public ResponseEntity<ApiResponse<PaymentResponse>> createPayment(
+            @Parameter(description = "ID của subscription cần thanh toán", example = "1001")
             @RequestParam("subscriptionId") Long subscriptionId,
             HttpServletRequest request
     ) {
@@ -32,6 +39,8 @@ public class PaymentController {
 
     @GetMapping("/vnpay-return")
     @PreAuthorize("permitAll()")
+    @SecurityRequirements()
+    @Operation(summary = "VNPay return callback", description = "Endpoint callback public được VNPay redirect về sau khi thanh toán.")
     public ResponseEntity<ApiResponse<String>> paymentReturn(HttpServletRequest request) {
         String result = paymentService.processPaymentReturn(request);
 

@@ -5,6 +5,9 @@ import com.fitlife.attendance.service.CheckInService;
 import com.fitlife.core.response.ApiResponse;
 import com.fitlife.identity.entity.User;
 import com.fitlife.identity.repository.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/checkin")
 @RequiredArgsConstructor
+@Tag(name = "Check-in Management", description = "Xử lý check-in tại quầy hoặc tự check-in của hội viên")
 public class CheckInController {
 
     private final CheckInService checkInService;
@@ -24,7 +28,9 @@ public class CheckInController {
      */
     @PostMapping("/{memberId}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF', 'ADMIN', 'STAFF')")
+    @Operation(summary = "Check-in cho hội viên bởi nhân viên", description = "Nhân viên/quản lý quét hoặc nhập memberId để xác nhận check-in tại quầy.")
     public ResponseEntity<ApiResponse<CheckInResponse>> staffProcessCheckIn(
+            @Parameter(description = "ID hội viên cần check-in", example = "101")
             @PathVariable Long memberId,
             Authentication authentication) {
 
@@ -46,6 +52,7 @@ public class CheckInController {
      */
     @PostMapping("/me")
     @PreAuthorize("hasAnyAuthority('ROLE_MEMBER', 'MEMBER')")
+    @Operation(summary = "Tự check-in của hội viên", description = "Hội viên tự thực hiện check-in bằng tài khoản của mình.")
     public ResponseEntity<ApiResponse<CheckInResponse>> memberSelfCheckIn(Authentication authentication) {
 
         User user = userRepository.findByUsername(authentication.getName())

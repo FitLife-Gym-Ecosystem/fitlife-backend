@@ -1,6 +1,7 @@
 package com.fitlife.core.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,11 +11,17 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor
+@Schema(name = "ApiResponse", description = "Wrapper phản hồi chuẩn của FitLife API")
 // If data is null, it won't be included in the JSON response
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
+    @Schema(description = "Mã trạng thái nội bộ của API", example = "200")
     private int code;
+
+    @Schema(description = "Thông điệp mô tả kết quả xử lý", example = "Success")
     private String message;
+
+    @Schema(description = "Dữ liệu trả về theo từng endpoint", nullable = true)
     private T data;
 
     public static <T> ApiResponse<T> success(T data) {
