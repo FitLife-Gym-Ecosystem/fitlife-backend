@@ -8,6 +8,7 @@ import com.fitlife.member.entity.Member;
 import com.fitlife.identity.repository.UserRepository;
 import com.fitlife.core.storage.impl.CloudinaryServiceImpl;
 import com.fitlife.member.repository.MemberRepository;
+import com.fitlife.member.mapper.MemberMapper;
 import com.fitlife.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
     private final CloudinaryServiceImpl cloudinaryServiceImpl;
+    private final MemberMapper memberMapper;
 
     @Transactional
     @Override
@@ -40,16 +42,12 @@ public class MemberServiceImpl implements MemberService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng ID: " + request.getUserId()));
 
-        Member newMember = Member.builder()
-                .user(user)
-                .fullName(request.getFullName())
-                .phone(request.getPhone())
-                .email(request.getEmail())
-                .status("ACTIVE")
-                .build();
+        Member newMember = memberMapper.toEntity(request);
+        newMember.setUser(user);
+        newMember.setStatus("ACTIVE");
 
         memberRepository.save(newMember);
-        return mapToMemberResponse(newMember);
+        return memberMapper.toResponse(newMember);
     }
 
     @Transactional
@@ -97,7 +95,7 @@ public class MemberServiceImpl implements MemberService {
         }
 
         List<MemberProfileResponse> content = memberPage.getContent().stream()
-                .map(this::mapToMemberResponse) // Separate mapping method for cleaner code
+                .map(memberMapper::toResponse)
                 .toList();
 
         return PageResponse.<MemberProfileResponse>builder()
@@ -106,19 +104,6 @@ public class MemberServiceImpl implements MemberService {
                 .pageSize(memberPage.getSize())
                 .totalElements(memberPage.getTotalElements())
                 .data(content)
-                .build();
-    }
-
-    // Helper method to reuse mapping logic across the service
-    private MemberProfileResponse mapToMemberResponse(Member member) {
-        return MemberProfileResponse.builder()
-                .id(member.getId())
-                .userId(member.getUser() != null ? member.getUser().getId() : null)
-                .fullName(member.getFullName())
-                .email(member.getEmail())
-                .phone(member.getPhone())
-                .status(member.getStatus())
-                .avatarUrl(member.getAvatarUrl())
                 .build();
     }
 
@@ -144,16 +129,12 @@ public class MemberServiceImpl implements MemberService {
         userRepository.save(newUser);
 
         // 3. TẠO HỒ SƠ MEMBER GẮN VỚI USER TRÊN
-        Member newMember = Member.builder()
-                .user(newUser)
-                .fullName(request.getFullName())
-                .phone(request.getPhone())
-                .email(request.getEmail())
-                .status("ACTIVE")
-                .build();
+        Member newMember = memberMapper.toEntity(request);
+        newMember.setUser(newUser);
+        newMember.setStatus("ACTIVE");
         memberRepository.save(newMember);
 
-        return mapToMemberResponse(newMember);
+        return memberMapper.toResponse(newMember);
     }
 
     @Transactional
@@ -187,7 +168,7 @@ public class MemberServiceImpl implements MemberService {
     public MemberProfileResponse getMemberById(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hội viên ID: " + memberId));
-        return mapToMemberResponse(member);
+        return memberMapper.toResponse(member);
     }
 
     @Transactional
@@ -202,7 +183,7 @@ public class MemberServiceImpl implements MemberService {
         member.setEmail(request.getEmail());
 
         memberRepository.save(member);
-        return mapToMemberResponse(member);
+        return memberMapper.toResponse(member);
     }
 
     @Transactional

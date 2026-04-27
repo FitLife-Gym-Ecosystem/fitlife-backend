@@ -3,6 +3,7 @@ package com.fitlife.identity.service.impl;
 import com.fitlife.identity.dto.UserCreationRequest;
 import com.fitlife.identity.dto.UserResponse;
 import com.fitlife.identity.entity.User;
+import com.fitlife.identity.mapper.UserMapper;
 import com.fitlife.identity.repository.UserRepository;
 import com.fitlife.identity.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     @Override
     public UserResponse createUser(UserCreationRequest request) {
@@ -26,22 +28,13 @@ public class UserServiceImpl implements UserService {
         String hashedPassword = passwordEncoder.encode(request.getPassword());
 
         // 2. Map DTO to Entity (Tạm thời lưu password gốc, BCrypt sẽ học ở bài Security)
-        User newUser = User.builder()
-                .username(request.getUsername())
-                .password(hashedPassword)
-                .role(request.getRole())
-                .status("ACTIVE") // Mặc định tạo user là ACTIVE
-                .build();
+        User newUser = userMapper.toEntity(request, hashedPassword);
+        newUser.setStatus("ACTIVE"); // Mặc định tạo user là ACTIVE
 
         // 3. Save to Database
         User savedUser = userRepository.save(newUser);
 
         // 4. Map Entity back to DTO Response (Hide password)
-        return UserResponse.builder()
-                .id(savedUser.getId())
-                .username(savedUser.getUsername())
-                .role(savedUser.getRole())
-                .status(savedUser.getStatus())
-                .build();
+        return userMapper.toResponse(savedUser);
     }
 }

@@ -1,6 +1,7 @@
 package com.fitlife.attendance.service.impl;
 
 import com.fitlife.attendance.dto.CheckInResponse;
+import com.fitlife.attendance.mapper.CheckInMapper;
 import com.fitlife.attendance.entity.CheckInHistory;
 import com.fitlife.attendance.repository.CheckInHistoryRepository;
 import com.fitlife.attendance.service.CheckInService;
@@ -24,6 +25,7 @@ public class CheckInServiceImpl implements CheckInService {
     private final MemberRepository memberRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final CheckInHistoryRepository checkInHistoryRepository;
+    private final CheckInMapper checkInMapper;
 
     @Transactional
     @Override
@@ -43,13 +45,12 @@ public class CheckInServiceImpl implements CheckInService {
                 .findSuccessfulCheckInToday(member, startOfDay, endOfDay);
 
         if (alreadyCheckedIn.isPresent()) {
-            return CheckInResponse.builder()
-                    .memberId(member.getId())
-                    .memberName(member.getFullName())
-                    .checkInTime(now)
-                    .status("ALREADY_CHECKED_IN")
-                    .message("Bạn đã điểm danh thành công trong hôm nay rồi. Chúc buổi tập vui vẻ!")
-                    .build();
+            return checkInMapper.toResponse(
+                    member,
+                    now,
+                    "ALREADY_CHECKED_IN",
+                    "Bạn đã điểm danh thành công trong hôm nay rồi. Chúc buổi tập vui vẻ!"
+            );
         }
 
         // 2. Mặc định là Cấm Cửa
@@ -83,12 +84,6 @@ public class CheckInServiceImpl implements CheckInService {
         checkInHistoryRepository.save(history);
 
         // 5. Trả kết quả về cho Cửa Từ (Frontend/Turnstile)
-        return CheckInResponse.builder()
-                .memberId(member.getId())
-                .memberName(member.getFullName())
-                .checkInTime(now)
-                .status(accessStatus)
-                .message(message)
-                .build();
+        return checkInMapper.toResponse(member, now, accessStatus, message);
     }
 }

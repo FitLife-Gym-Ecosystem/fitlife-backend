@@ -2,6 +2,7 @@ package com.fitlife.payment.controller;
 
 import com.fitlife.core.response.ApiResponse;
 import com.fitlife.payment.dto.PaymentResponse;
+import com.fitlife.payment.mapper.PaymentMapper;
 import com.fitlife.payment.service.PaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final PaymentMapper paymentMapper;
 
     @PostMapping("/create-payment")
     @PreAuthorize("hasAnyAuthority('MEMBER', 'ROLE_MEMBER')")
@@ -23,12 +25,7 @@ public class PaymentController {
             HttpServletRequest request
     ) {
         String paymentUrl = paymentService.createPaymentUrl(subscriptionId, request);
-        PaymentResponse paymentResponse = PaymentResponse.builder()
-                .status("OK")
-                .message("Tạo link thanh toán thành công")
-                .paymentUrl(paymentUrl)
-                .orderInfo("Thanh toán Subscription ID: " + subscriptionId)
-                .build();
+        PaymentResponse paymentResponse = paymentMapper.toResponse(paymentUrl, subscriptionId);
 
         return ResponseEntity.ok(ApiResponse.success(paymentResponse, "Tạo link thanh toán thành công"));
     }

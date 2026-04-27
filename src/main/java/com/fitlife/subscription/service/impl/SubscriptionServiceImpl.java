@@ -7,6 +7,7 @@ import com.fitlife.member.repository.MemberRepository;
 import com.fitlife.subscription.dto.SubscriptionCreationRequest;
 import com.fitlife.subscription.dto.SubscriptionResponse;
 import com.fitlife.subscription.entity.Subscription;
+import com.fitlife.subscription.mapper.SubscriptionMapper;
 import com.fitlife.subscription.reprository.SubscriptionRepository;
 import com.fitlife.subscription.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final MemberRepository memberRepository;
     private final GymPackageRepository gymPackageRepository;
+    private final SubscriptionMapper subscriptionMapper;
 
     @Transactional
     @Override
@@ -52,12 +54,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         Subscription savedSub = subscriptionRepository.save(newSubscription);
 
-        return SubscriptionResponse.builder()
-                .id(savedSub.getId())
-                .memberId(member.getId())
-                .packageId(gymPackage.getId())
-                .packageName(gymPackage.getName())
-                .status(savedSub.getStatus())
-                .build();
+        return subscriptionMapper.toResponse(savedSub);
     }
 }

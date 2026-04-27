@@ -4,6 +4,7 @@ import com.fitlife.core.response.PageResponse;
 import com.fitlife.packagegym.dto.GymPackageRequest;
 import com.fitlife.packagegym.dto.GymPackageResponse;
 import com.fitlife.packagegym.entity.GymPackage;
+import com.fitlife.packagegym.mapper.GymPackageMapper;
 import com.fitlife.packagegym.repository.GymPackageRepository;
 import com.fitlife.packagegym.service.GymPackageService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.List;
 public class GymPackageServiceImpl implements GymPackageService {
 
     private final GymPackageRepository gymPackageRepository;
+    private final GymPackageMapper gymPackageMapper;
 
     @Transactional
     @Override
@@ -30,16 +32,10 @@ public class GymPackageServiceImpl implements GymPackageService {
             throw new RuntimeException("Tên gói tập đã tồn tại: " + request.getName());
         }
 
-        GymPackage newPackage = GymPackage.builder()
-                .name(request.getName())
-                .price(request.getPrice())
-                .durationMonths(request.getDurationMonths())
-                .description(request.getDescription())
-                .status("ACTIVE")
-                // isDeleted đã được @Builder.Default gán false trong Entity
-                .build();
+        GymPackage newPackage = gymPackageMapper.toEntity(request);
+        newPackage.setStatus("ACTIVE");
 
-        return mapToResponse(gymPackageRepository.save(newPackage));
+        return gymPackageMapper.toResponse(gymPackageRepository.save(newPackage));
     }
 
     @Transactional(readOnly = true)
@@ -59,7 +55,7 @@ public class GymPackageServiceImpl implements GymPackageService {
         }
 
         List<GymPackageResponse> content = packagePage.getContent().stream()
-                .map(this::mapToResponse)
+                .map(gymPackageMapper::toResponse)
                 .toList();
 
         return PageResponse.<GymPackageResponse>builder()
@@ -82,7 +78,7 @@ public class GymPackageServiceImpl implements GymPackageService {
             throw new RuntimeException("Gói tập này đã bị xóa khỏi hệ thống!");
         }
 
-        return mapToResponse(gymPackage);
+        return gymPackageMapper.toResponse(gymPackage);
     }
 
     @Transactional
@@ -100,12 +96,9 @@ public class GymPackageServiceImpl implements GymPackageService {
             throw new RuntimeException("Tên gói tập đã tồn tại: " + request.getName());
         }
 
-        gymPackage.setName(request.getName());
-        gymPackage.setDescription(request.getDescription());
-        gymPackage.setPrice(request.getPrice());
-        gymPackage.setDurationMonths(request.getDurationMonths());
+        gymPackageMapper.updateFromRequest(request, gymPackage);
 
-        return mapToResponse(gymPackageRepository.save(gymPackage));
+        return gymPackageMapper.toResponse(gymPackageRepository.save(gymPackage));
     }
 
     // ĐÃ SỬA THÀNH ĐÚNG BẢN CHẤT CỦA SOFT DELETE
@@ -119,17 +112,5 @@ public class GymPackageServiceImpl implements GymPackageService {
         gymPackage.setIsDeleted(true);
         gymPackage.setStatus("INACTIVE"); // Kèm theo dừng bán
         gymPackageRepository.save(gymPackage);
-    }
-
-    private GymPackageResponse mapToResponse(GymPackage pkg) {
-        return GymPackageResponse.builder()
-                .id(pkg.getId())
-                .name(pkg.getName())
-                .price(pkg.getPrice())
-                .durationMonths(pkg.getDurationMonths())
-                .description(pkg.getDescription())
-                .status(pkg.getStatus())
-                .thumbnailUrl(pkg.getThumbnailUrl())
-                .build();
     }
 }
