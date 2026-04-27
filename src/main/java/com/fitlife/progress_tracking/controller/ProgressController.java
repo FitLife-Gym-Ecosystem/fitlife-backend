@@ -6,7 +6,6 @@ import com.fitlife.identity.repository.UserRepository;
 import com.fitlife.progress_tracking.service.ProgressFacadeService;
 import com.fitlife.progress_tracking.dto.MemberProgressSummaryResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -34,11 +33,6 @@ public class ProgressController {
         }
 
         MemberProgressSummaryResponse report = progressFacadeService.getMyProgress(user.getMember().getId());
-
-        return ResponseEntity.ok(ApiResponse.<MemberProgressSummaryResponse>builder()
-                .code(HttpStatus.OK.value())
-                .message("Lấy báo cáo cá nhân thành công")
-                .data(report)
-                .build());
+        return ResponseEntity.ok(ApiResponse.success(report, "Lấy báo cáo cá nhân thành công"));
     }
 }

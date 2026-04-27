@@ -6,7 +6,6 @@ import com.fitlife.core.response.ApiResponse;
 import com.fitlife.identity.entity.User;
 import com.fitlife.identity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -39,12 +38,7 @@ public class CheckInController {
         }
 
         CheckInResponse result = checkInService.processCheckIn(memberId, staffUser.getUsername());
-
-        return ResponseEntity.ok(ApiResponse.<CheckInResponse>builder()
-                .code(HttpStatus.OK.value())
-                .message("Check-in xử lý thành công bởi nhân viên")
-                .data(result)
-                .build());
+        return ResponseEntity.ok(ApiResponse.success(result, "Check-in xử lý thành công bởi nhân viên"));
     }
 
     /**
@@ -62,11 +56,6 @@ public class CheckInController {
         }
 
         CheckInResponse result = checkInService.processCheckIn(user.getMember().getId(), user.getUsername());
-
-        return ResponseEntity.ok(ApiResponse.<CheckInResponse>builder()
-                .code(HttpStatus.OK.value())
-                .message("Hội viên tự check-in thành công")
-                .data(result)
-                .build());
+        return ResponseEntity.ok(ApiResponse.success(result, "Hội viên tự check-in thành công"));
     }
 }

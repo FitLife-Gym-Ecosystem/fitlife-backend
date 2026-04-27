@@ -24,14 +24,9 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    // ==========================================
-    // 1. LUỒNG DÀNH CHO HỘI VIÊN (USER)
-    // ==========================================
-
     @PostMapping
     public ResponseEntity<ApiResponse<MemberProfileResponse>> createMember(@Valid @RequestBody MemberCreationRequest request) {
         MemberProfileResponse result = memberService.createMember(request);
-        // Tái sử dụng hàm static created() vừa viết, code cực kỳ Clean!
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(result, "Member created successfully"));
     }
 
@@ -43,12 +38,7 @@ public class MemberController {
         return ResponseEntity.ok(ApiResponse.success(avatarUrl, "Cập nhật ảnh đại diện thành công"));
     }
 
-    // ==========================================
-    // 2. LUỒNG DÀNH CHO QUẢN TRỊ VIÊN (ADMIN)
-    // ==========================================
-
     @GetMapping("/admin")
-    // Dùng hasRole('ADMIN') -> Spring Security tự động hiểu là cần tìm chữ "ROLE_ADMIN" trong Token
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<ApiResponse<PageResponse<MemberProfileResponse>>> getAllMembers(
             @RequestParam(defaultValue = "1") int page,

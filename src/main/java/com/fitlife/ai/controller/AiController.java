@@ -35,7 +35,7 @@ public class AiController {
     @GetMapping("/history")
     @PreAuthorize("hasAnyAuthority('MEMBER', 'ROLE_MEMBER')")
     public ResponseEntity<ApiResponse<List<AiWorkoutPlan>>> getHistory(Principal principal) {
-
+ 
         List<AiWorkoutPlan> history = aiService.getMemberHistory(principal.getName());
 
         return ResponseEntity.ok(ApiResponse.success(history, "Lấy danh sách lịch sử tư vấn AI thành công."));

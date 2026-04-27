@@ -19,18 +19,9 @@ public class SubscriptionController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<SubscriptionResponse>> createSubscription(
-            @RequestBody SubscriptionCreationRequest request, // Tạm thời bỏ @Valid để bỏ qua lỗi NotNull memberId
+            @RequestBody SubscriptionCreationRequest request,
             Principal principal) {
-
-        // Dùng Principal lấy username từ Token và truyền xuống Service
         SubscriptionResponse result = subscriptionService.createSubscription(principal.getName(), request);
-
-        ApiResponse<SubscriptionResponse> response = ApiResponse.<SubscriptionResponse>builder()
-                .code(200)
-                .message("Tạo đơn hàng PENDING thành công")
-                .data(result)
-                .build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success(result, "Tạo đơn hàng PENDING thành công"));
     }
 }
